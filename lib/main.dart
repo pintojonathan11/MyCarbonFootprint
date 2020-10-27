@@ -2,6 +2,8 @@ import 'dart:developer';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:plastic_counter/CustomizeUnits.dart';
+import 'package:plastic_counter/InfoAlertDialog.dart';
 import 'package:plastic_counter/model/CounterDataModel.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'dart:async';
@@ -16,6 +18,8 @@ Future loadCounterData() async {
   if (readPlastic == null) {
     counterData = await counterStorage.initWrite();
   } else {
+    counterData = [];
+
     CounterDataModel readWater = await counterStorage.readWaterBottles();
     CounterDataModel readCarp = await counterStorage.readCarpooled();
     CounterDataModel readWalked = await counterStorage.readWalked();
@@ -38,6 +42,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+//    data.then((value) => print(value[1].units));
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
@@ -48,11 +53,36 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class MyHomePage extends StatelessWidget {
-  MyHomePage({Key key, this.title, this.data}) : super(key: key);
-
-  final String title;
+class MyHomePage extends StatefulWidget {
   final Future data;
+  final String title;
+
+  MyHomePage({Key key, this.data, this.title}) : super(key: key);
+
+  @override
+  MyHomePageState createState() => MyHomePageState();
+}
+
+class MyHomePageState extends State<MyHomePage> {
+//  MyHomePage({Key key, this.title, this.data}) : super(key: key);
+
+  String title;
+  Future data;
+
+  @override
+  void initState() {
+    super.initState();
+    title = widget.title;
+    data = widget.data;
+  }
+
+  void callback(Future data) {
+    print("going");
+    data.then((value) => print(value.toString()));
+    setState(() {
+      this.data = data;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +95,9 @@ class MyHomePage extends StatelessWidget {
         child: FutureBuilder(
           future: data,
           builder: (context, snapshot) {
-            if (snapshot.hasData) {
+            if (snapshot.connectionState != ConnectionState.done) {
+            } else {
+              //(snapshot.hasData) {
               return Container(
                 decoration: BoxDecoration(
                   image: DecorationImage(
@@ -78,16 +110,16 @@ class MyHomePage extends StatelessWidget {
                   itemCount: counterData.length,
                   itemBuilder: (context, index) {
                     return TrackPage(
-                      title: counterData[index].title,
-                      units: counterData[index].units,
-                      count: counterData[index].count,
-                    );
+                        title: counterData[index].title,
+                        units: counterData[index].units,
+                        count: counterData[index].count,
+                        ind: index,
+                        callBack: callback);
                   },
                 ),
               );
-            } else if (snapshot.hasError) {
-              return Text("${snapshot.error}");
             }
+
             // By default, show a loading spinner
             return CircularProgressIndicator();
           },
@@ -133,8 +165,10 @@ class TrackPage extends StatefulWidget {
   final String title;
   final String units;
   int count;
+  final int ind;
+  Function callBack;
 
-  TrackPage({this.title, this.units, this.count});
+  TrackPage({this.title, this.units, this.count, this.ind, this.callBack});
 
   @override
   _ItemCounterState createState() => _ItemCounterState();
@@ -147,6 +181,10 @@ class _ItemCounterState extends State<TrackPage> {
   double _width = -1;
   double _height = -1;
 
+  int ind;
+
+  String showCount = "";
+
   Timer timer;
 
   @override
@@ -154,26 +192,32 @@ class _ItemCounterState extends State<TrackPage> {
     super.initState();
     _count = widget.count;
     units = widget.units;
+    ind = widget.ind;
+
+    int t = _count.toInt();
+    showCount = _count - t > 0 ? "$_count" : t.toString();
   }
 
   void subtract() {
     setState(() {
       if (_count > 0) {
         _count--;
-        if (units == "Plastic Bags") {
+        if (ind == 0) {
           counterData[0].count -= 1;
-          counterStorage.writePlasticBags(_count);
-        } else if (units == "Water Bottles") {
+          counterStorage.writePlasticBagsCount(_count);
+        } else if (ind == 1) {
           counterData[1].count -= 1;
-          counterStorage.writeWaterBottles(_count);
-        } else if (units == "Miles") {
+          counterStorage.writeWaterBottlesCount(_count);
+        } else if (ind == 2) {
           counterData[2].count -= 1;
-          counterStorage.writeCarpooled(_count);
-        } else if (units == "Minutes") {
+          counterStorage.writeCarpooledCount(_count);
+        } else if (ind == 3) {
           counterData[3].count -= 1;
-          counterStorage.writeWalked(_count);
+          counterStorage.writeWalkedCount(_count);
         }
       }
+      int t = _count.toInt();
+      showCount = _count - t > 0 ? "$_count" : t.toString();
     });
   }
 
@@ -181,19 +225,21 @@ class _ItemCounterState extends State<TrackPage> {
     setState(() {
       _count++;
 
-      if (units == "Plastic Bags") {
+      if (ind == 0) {
         counterData[0].count += 1;
-        counterStorage.writePlasticBags(_count);
-      } else if (units == "Water Bottles") {
+        counterStorage.writePlasticBagsCount(_count);
+      } else if (ind == 1) {
         counterData[1].count += 1;
-        counterStorage.writeWaterBottles(_count);
-      } else if (units == "Miles") {
+        counterStorage.writeWaterBottlesCount(_count);
+      } else if (ind == 2) {
         counterData[2].count += 1;
-        counterStorage.writeCarpooled(_count);
-      } else if (units == "Minutes") {
+        counterStorage.writeCarpooledCount(_count);
+      } else if (ind == 3) {
         counterData[3].count += 1;
-        counterStorage.writeWalked(_count);
+        counterStorage.writeWalkedCount(_count);
       }
+      int t = _count.toInt();
+      showCount = _count - t > 0 ? "$_count" : t.toString();
     });
   }
 
@@ -237,9 +283,31 @@ class _ItemCounterState extends State<TrackPage> {
                     ListTile(
                         leading: IconButton(
                           icon: Icon(Icons.info),
+                          onPressed: () => showDialog(
+                            context: context,
+                            builder: (context) =>
+                                InfoAlertDialog(topic: "$units", ind: ind),
+                          ),
                         ),
-                        trailing: IconButton(
-                          icon: Icon(Icons.settings),
+                        trailing: Column(
+                          children: <Widget>[
+                            if (ind != 0)
+                              IconButton(
+                                icon: Icon(Icons.settings),
+                                onPressed: () => {
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) => CustomizeUnits(
+                                      topic: "$units",
+                                      ind: ind,
+                                      count: _count,
+                                      callback: this.widget.callBack,
+                                      loadData: loadCounterData,
+                                    ),
+                                  )
+                                },
+                              ),
+                          ],
                         ),
                         title: Container(
                           margin: const EdgeInsets.only(top: 20),
@@ -302,7 +370,7 @@ class _ItemCounterState extends State<TrackPage> {
                                   height: 200.0,
                                   child: FittedBox(
                                     fit: BoxFit.contain,
-                                    child: Text("$_count"),
+                                    child: Text(showCount),
                                   ),
                                 ),
                               ),
@@ -343,11 +411,12 @@ class _ItemCounterState extends State<TrackPage> {
                       ),
                     ),
                     Container(
-                      margin: const EdgeInsets.only(top: 20),
+                      margin:
+                          const EdgeInsets.only(top: 20, left: 10, right: 10),
                       child: AutoSizeText("$units",
                           textAlign: TextAlign.center,
                           style: TextStyle(fontSize: 30),
-                          maxLines: 2),
+                          maxLines: 1),
                     ),
                   ],
                 ),

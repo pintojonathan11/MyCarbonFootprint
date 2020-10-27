@@ -14,6 +14,10 @@ class CounterDataModel {
     this.count = count;
   }
 
+  String toString() {
+    return title + ", " + units + ", " + count.toString();
+  }
+
   factory CounterDataModel.fromJson(Map<String, dynamic> json) =>
       _$CounterDataModelFromJson(json);
 

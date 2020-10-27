@@ -78,11 +78,20 @@ class CounterStorage {
     }
   }
 
-  Future<File> writePlasticBags(int counter) async {
+  Future<File> writePlasticBagsCount(int counter) async {
     final file = await _plasticBagsFile;
 
     return readPlasticBags().then((value) {
       value.count = counter;
+      return file.writeAsString(convertCounterDataToString(value));
+    });
+  }
+
+  Future<File> writePlasticBagsUnit(String unit) async {
+    final file = await _plasticBagsFile;
+
+    return readPlasticBags().then((value) {
+      value.units = unit;
       return file.writeAsString(convertCounterDataToString(value));
     });
   }
@@ -96,6 +105,10 @@ class CounterStorage {
 
       List<String> listOfItems = contents.split("|");
 
+      listOfItems.forEach((element) {
+        print(element);
+      });
+
       if (listOfItems.length == 0) {
         return null;
       }
@@ -108,11 +121,22 @@ class CounterStorage {
     }
   }
 
-  Future<File> writeWaterBottles(int counter) async {
+  Future<File> writeWaterBottlesCount(int counter) async {
     final file = await _waterBottlesFile;
 
-    return readPlasticBags().then((value) {
+    return readWaterBottles().then((value) {
       value.count = counter;
+      return file.writeAsString(convertCounterDataToString(value));
+    });
+  }
+
+  Future<File> writeWaterBottlesUnit(String unit) async {
+    unit = "Water Bottles (" + unit + ")";
+
+    final file = await _waterBottlesFile;
+
+    return readWaterBottles().then((value) {
+      value.units = unit;
       return file.writeAsString(convertCounterDataToString(value));
     });
   }
@@ -138,11 +162,20 @@ class CounterStorage {
     }
   }
 
-  Future<File> writeCarpooled(int counter) async {
+  Future<File> writeCarpooledCount(int counter) async {
     final file = await _carpooledFile;
 
-    return readPlasticBags().then((value) {
+    return readCarpooled().then((value) {
       value.count = counter;
+      return file.writeAsString(convertCounterDataToString(value));
+    });
+  }
+
+  Future<File> writeCarpooledUnit(String unit) async {
+    final file = await _carpooledFile;
+
+    return readCarpooled().then((value) {
+      value.units = unit;
       return file.writeAsString(convertCounterDataToString(value));
     });
   }
@@ -168,11 +201,20 @@ class CounterStorage {
     }
   }
 
-  Future<File> writeWalked(int counter) async {
+  Future<File> writeWalkedCount(int counter) async {
     final file = await _walkedFile;
 
-    return readPlasticBags().then((value) {
+    return readWalked().then((value) {
       value.count = counter;
+      return file.writeAsString(convertCounterDataToString(value));
+    });
+  }
+
+  Future<File> writeWalkedUnit(String unit) async {
+    final file = await _walkedFile;
+
+    return readWalked().then((value) {
+      value.units = unit;
       return file.writeAsString(convertCounterDataToString(value));
     });
   }
@@ -188,13 +230,14 @@ class CounterStorage {
     final walkedFile = await _walkedFile;
 
     plasticFile.writeAsString("Avoided|Plastic Bags|0");
-    waterFile.writeAsString("Refilled|Water Bottles|0");
+    waterFile.writeAsString("Refilled|Water Bottles (16.9 oz/0.5 L)|0");
     carpoolFile.writeAsString("Carpooled|Miles|0");
     walkedFile.writeAsString("Walked|Minutes|0");
 
     List<CounterDataModel> list = [];
     list.add(new CounterDataModel("Avoided", "Plastic Bags", 0));
-    list.add(new CounterDataModel("Refilled", "Water Bottles", 0));
+    list.add(
+        new CounterDataModel("Refilled", "Water Bottles (16.9 oz/0.5 L)", 0));
     list.add(new CounterDataModel("Carpooled", "Miles", 0));
     list.add(new CounterDataModel("Walked", "Minutes", 0));
 
