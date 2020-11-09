@@ -1,5 +1,5 @@
 name: plastic_counter
-description: Application to count how many plastic bags you have saved
+description: Application to encourage you to reduce your carbon footprint
 
 version: 1.0.0+1
 
@@ -14,12 +14,20 @@ dependencies:
   cupertino_icons: ^0.1.2
   path_provider: ^1.6.18
   easy_rich_text: '^0.5.2'
+  charts_flutter: ^0.9.0
+
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   build_runner: ^1.8.1
   json_serializable: ^3.3.0
+  flutter_launcher_icons: ^0.8.0
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/logo.png"
 
 flutter:
 
@@ -28,6 +36,13 @@ flutter:
   assets:
     - assets/images/forrest.jpeg
     - assets/images/recycle_city_background.jpeg
+    - assets/images/tree_for_data.jpg
+    - assets/images/sapling.png
+    - assets/images/young_tree.png
+    - assets/images/acre.png
+    - assets/images/mycfoot.png
+    - assets/images/logo.png
+    - assets/images/info_bg.jpg
   #  - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

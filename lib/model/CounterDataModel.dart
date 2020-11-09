@@ -7,6 +7,7 @@ class CounterDataModel {
   String title;
   String units;
   int count;
+  double grams;
 
   CounterDataModel(String title, String units, int count) {
     this.title = title;
